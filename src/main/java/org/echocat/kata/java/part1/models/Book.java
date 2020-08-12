@@ -5,6 +5,8 @@ import lombok.*;
 import java.util.List;
 
 @Getter
+@EqualsAndHashCode
+@ToString(callSuper = true)
 public class Book extends Medium {
 
   @NonNull
@@ -21,7 +23,7 @@ public class Book extends Medium {
   }
 
   @Override
-  protected MediumType getType() {
+  public MediumType getType() {
     return MediumType.BOOK;
   }
 }

@@ -5,10 +5,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
-import org.echocat.kata.java.part1.models.Author;
-import org.echocat.kata.java.part1.models.Book;
-import org.echocat.kata.java.part1.models.Magazine;
-import org.echocat.kata.java.part1.models.Medium;
+import org.echocat.kata.java.part1.models.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -26,8 +23,10 @@ import static java.util.function.Function.identity;
 public class DataStore {
 
   private static final String AUTHORS_PATH = "authors.csv";
-  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+  private static final String BOOKS_PATH = "books.csv";
+  private static final String MAGAZINES_PATH = "magazines.csv";
 
+  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
   private Map<String, Medium> mediumByIsbn;
   private Map<String, Author> authorsByEmail;
@@ -37,14 +36,8 @@ public class DataStore {
     .build();
 
   public DataStore() {
-    try (Reader reader = Files.newBufferedReader(Paths.get(this.getClass().getClassLoader().getResource(AUTHORS_PATH).toURI()))) {
-      authorsByEmail = readAuthors(reader).stream()
-        .collect(Collectors.toMap(Author::getEmail, identity()));
-    } catch (IOException | URISyntaxException | CsvException e) {
-      System.out.println("Couldn't read the authors");
-      e.printStackTrace();
-      authorsByEmail = Collections.emptyMap();
-    }
+    this.authorsByEmail = initAuthors();
+    this.mediumByIsbn = initMedium();
   }
 
   public List<Author> getAllAuthors() {
@@ -53,6 +46,63 @@ public class DataStore {
 
   public Optional<Author> getAuthorByEmail(String email) {
     return Optional.ofNullable(authorsByEmail.get(email));
+  }
+
+  public List<Medium> getAllMedia() {
+    return Collections.unmodifiableList(new ArrayList<>(mediumByIsbn.values()));
+  }
+
+  public List<Book> getAllBooks() {
+    return Collections.unmodifiableList(
+      mediumByIsbn.values()
+        .stream()
+        .filter(medium -> medium.getType() == MediumType.BOOK)
+        .map(book -> (Book) book)
+        .collect(Collectors.toList()));
+  }
+
+  public List<Magazine> getAllMagazines() {
+    return Collections.unmodifiableList(
+      mediumByIsbn.values()
+        .stream()
+        .filter(medium -> medium.getType() == MediumType.MAGAZINE)
+        .map(magazine -> (Magazine) magazine)
+        .collect(Collectors.toList()));
+  }
+
+  public Optional<Medium> getMediumByIsbn(String isbn) {
+    return Optional.ofNullable(mediumByIsbn.get(isbn));
+  }
+
+  private Map<String, Medium> initMedium() {
+    try (Reader booksReader = Files.newBufferedReader(Paths.get(this.getClass().getClassLoader().getResource(BOOKS_PATH).toURI()));
+         Reader magazinesReader = Files.newBufferedReader(Paths.get(this.getClass().getClassLoader().getResource(MAGAZINES_PATH).toURI()))) {
+
+      HashMap<String, Medium> tempMap = new HashMap<>();
+      for(Book book: readBooks(booksReader)) {
+        tempMap.put(book.getIsbn(), book);
+      }
+
+      for(Magazine magazine: readMagazines(magazinesReader)) {
+        tempMap.put(magazine.getIsbn(), magazine);
+      }
+
+      return Collections.unmodifiableMap(tempMap);
+    } catch (URISyntaxException | IOException | CsvException e) {
+      e.printStackTrace();
+      return Collections.emptyMap();
+    }
+  }
+
+  private Map<String, Author> initAuthors() {
+    try (Reader reader = Files.newBufferedReader(Paths.get(this.getClass().getClassLoader().getResource(AUTHORS_PATH).toURI()))) {
+      return readAuthors(reader).stream()
+        .collect(Collectors.toMap(Author::getEmail, identity()));
+    } catch (IOException | URISyntaxException | CsvException e) {
+      System.out.println("Couldn't read the authors");
+      e.printStackTrace();
+      return Collections.emptyMap();
+    }
   }
 
   private List<Author> readAuthors(Reader reader) throws IOException, CsvException {
@@ -99,7 +149,7 @@ public class DataStore {
       .title(columns[0])
       .isbn(columns[1])
       .authors(emailsToAuthors(columns[2]))
-      .description(columns[2])
+      .description(columns[3])
       .build();
   }
 
@@ -108,7 +158,7 @@ public class DataStore {
       .title(columns[0])
       .isbn(columns[1])
       .authors(emailsToAuthors(columns[2]))
-      .publishedAt(toDate(columns[2]))
+      .publishedAt(toDate(columns[3]))
       .build();
   }
 

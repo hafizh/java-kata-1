@@ -1,6 +1,7 @@
 package org.echocat.kata.java.part1.models;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
+@EqualsAndHashCode
 public class Magazine extends Medium {
 
   @Builder
@@ -24,7 +26,7 @@ public class Magazine extends Medium {
   private final LocalDate publishedAt;
 
   @Override
-  protected MediumType getType() {
+  public MediumType getType() {
     return MediumType.MAGAZINE;
   }
 }
