@@ -18,12 +18,7 @@ public class Book extends Medium {
               @NonNull List<Author> authors,
               @NonNull String description) {
 
-    super(title, isbn, authors);
+    super(title, isbn, authors, MediumType.BOOK);
     this.description = description;
-  }
-
-  @Override
-  public MediumType getType() {
-    return MediumType.BOOK;
   }
 }

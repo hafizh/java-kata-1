@@ -56,7 +56,7 @@ public class DataStore {
     return Collections.unmodifiableList(
       mediumByIsbn.values()
         .stream()
-        .filter(medium -> medium.getType() == MediumType.BOOK)
+        .filter(medium -> medium.getMediumType() == MediumType.BOOK)
         .map(book -> (Book) book)
         .collect(Collectors.toList()));
   }
@@ -65,7 +65,7 @@ public class DataStore {
     return Collections.unmodifiableList(
       mediumByIsbn.values()
         .stream()
-        .filter(medium -> medium.getType() == MediumType.MAGAZINE)
+        .filter(medium -> medium.getMediumType() == MediumType.MAGAZINE)
         .map(magazine -> (Magazine) magazine)
         .collect(Collectors.toList()));
   }

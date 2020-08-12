@@ -12,21 +12,16 @@ import java.util.List;
 @EqualsAndHashCode
 public class Magazine extends Medium {
 
+  @NonNull
+  private final LocalDate publishedAt;
+
   @Builder
   public Magazine(@NonNull String title,
                   @NonNull String isbn,
                   @NonNull List<Author> authors,
                   @NonNull LocalDate publishedAt) {
 
-    super(title, isbn, authors);
+    super(title, isbn, authors, MediumType.MAGAZINE);
     this.publishedAt = publishedAt;
-  }
-
-  @NonNull
-  private final LocalDate publishedAt;
-
-  @Override
-  public MediumType getType() {
-    return MediumType.MAGAZINE;
   }
 }
