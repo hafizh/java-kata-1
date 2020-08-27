@@ -5,6 +5,8 @@ import lombok.*;
 import java.util.List;
 
 @Getter
+@EqualsAndHashCode
+@ToString(callSuper = true)
 public class Book extends Medium {
 
   @NonNull
@@ -16,12 +18,7 @@ public class Book extends Medium {
               @NonNull List<Author> authors,
               @NonNull String description) {
 
-    super(title, isbn, authors);
+    super(title, isbn, authors, MediumType.BOOK);
     this.description = description;
-  }
-
-  @Override
-  protected MediumType getType() {
-    return MediumType.BOOK;
   }
 }
